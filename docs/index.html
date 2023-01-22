@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate chmod values from octal, litteral or named permissions.">
+    <meta name="theme-color" content="#ffffff">
+    <title>Chmod Calculator</title>
+    <link rel="preload" href="./index.css" as="style">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Lora:wght@400;500;600;700&family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="preload" as="style">
+  </head>
+  <body>
+    <div id="elm"></div>
+    <script src="./index.js"></script>
+    <script>
+      const font = document.createElement("link")
+      const stylesheet = document.createElement("link")
+
+      font.setAttribute("rel", "stylesheet")
+      font.setAttribute("href", "https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Lora:wght@400;500;600;700&family=Roboto:wght@100;300;400;500;700;900&display=swap")
+
+      stylesheet.setAttribute("rel", "stylesheet")
+      stylesheet.setAttribute("href", "./index.css")
+
+      document.head.appendChild(font)
+      document.head.appendChild(stylesheet)
+
+      const elmElement = document.getElementById("elm")
+
+      if (!(elmElement instanceof HTMLDivElement)) {
+        throw new Error("Elm element is not found in the current DOM!")
+      }
+
+      window.Elm.Main.init({
+        node: elmElement
+      })
+    </script>
+  </body>
+</html>

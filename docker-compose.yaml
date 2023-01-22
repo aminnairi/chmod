@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  elm:
+    build:
+      context: docker/elm
+      dockerfile: Dockerfile
+      args:
+        ELM_VERSION: 0.19.1
+        ELM_DISTRIBUTION: linux-64-bit
+        NODEJS_VERSION: 18.13.0
+        NODEJS_DISTRIBUTION: linux-x64
+    volumes:
+      - .:/home/elm
