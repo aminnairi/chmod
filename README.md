@@ -10,6 +10,8 @@ See https://aminnairi.github.io/chmod
 
 ### Requirements
 
+- Bash
+- GNU/Make
 - Docker
 - Docker Compose
 
