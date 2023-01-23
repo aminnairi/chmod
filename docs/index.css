@@ -90,6 +90,10 @@ h6 {
   font-size: 15px;
 }
 
+.input-with-label > input:focus {
+  outline: 1px solid black;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background-color: indigo;
