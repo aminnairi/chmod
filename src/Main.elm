@@ -4,195 +4,10 @@ import Browser
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Permissions exposing (UsersPermissions)
+import Permissions.Litteral
+import Permissions.Octal
 import String.Extra
-
-
-type alias Permissions =
-    { read : Bool
-    , write : Bool
-    , execute : Bool
-    }
-
-
-type alias UsersPermissions =
-    { owner : Permissions
-    , group : Permissions
-    , others : Permissions
-    }
-
-
-permissionsToLitteral : Permissions -> String
-permissionsToLitteral { read, write, execute } =
-    [ ( "r", read ), ( "w", write ), ( "x", execute ) ]
-        |> List.map
-            (\( permissionLetter, permission ) ->
-                if permission then
-                    permissionLetter
-
-                else
-                    "-"
-            )
-        |> String.join ""
-
-
-usersPermissionsToLitteral : UsersPermissions -> String
-usersPermissionsToLitteral { owner, group, others } =
-    [ owner, group, others ]
-        |> List.map permissionsToLitteral
-        |> String.join ""
-
-
-litteralToUsersPermissions : String -> Maybe UsersPermissions
-litteralToUsersPermissions litteral =
-    litteral
-        |> String.Extra.break 3
-        |> List.map
-            (\permissions ->
-                if permissions == "r--" then
-                    { read = True
-                    , write = False
-                    , execute = False
-                    }
-
-                else if permissions == "rw-" then
-                    { read = True
-                    , write = True
-                    , execute = False
-                    }
-
-                else if permissions == "r-x" then
-                    { read = True
-                    , write = False
-                    , execute = True
-                    }
-
-                else if permissions == "rwx" then
-                    { read = True
-                    , write = True
-                    , execute = True
-                    }
-
-                else if permissions == "-w-" then
-                    { read = False
-                    , write = True
-                    , execute = False
-                    }
-
-                else if permissions == "-wx" then
-                    { read = False
-                    , write = True
-                    , execute = True
-                    }
-
-                else if permissions == "--x" then
-                    { read = False
-                    , write = False
-                    , execute = True
-                    }
-
-                else
-                    { read = False
-                    , write = False
-                    , execute = False
-                    }
-            )
-        |> (\permissions ->
-                case permissions of
-                    [ owner, group, others ] ->
-                        Just { owner = owner, group = group, others = others }
-
-                    _ ->
-                        Nothing
-           )
-
-
-permissionsToOctal : Permissions -> String
-permissionsToOctal { read, write, execute } =
-    [ ( 4, read ), ( 2, write ), ( 1, execute ) ]
-        |> List.map
-            (\( permissionValue, permission ) ->
-                if permission then
-                    permissionValue
-
-                else
-                    0
-            )
-        |> List.sum
-        |> String.fromInt
-
-
-octalToPermissions : String -> Maybe UsersPermissions
-octalToPermissions octal =
-    if String.length octal /= 3 then
-        Nothing
-
-    else
-        String.split "" octal
-            |> List.map
-                (\letter ->
-                    if letter == "7" then
-                        { read = True
-                        , write = True
-                        , execute = True
-                        }
-
-                    else if letter == "6" then
-                        { read = True
-                        , write = True
-                        , execute = False
-                        }
-
-                    else if letter == "5" then
-                        { read = True
-                        , write = False
-                        , execute = True
-                        }
-
-                    else if letter == "4" then
-                        { read = True
-                        , write = False
-                        , execute = False
-                        }
-
-                    else if letter == "3" then
-                        { read = False
-                        , write = True
-                        , execute = True
-                        }
-
-                    else if letter == "2" then
-                        { read = False
-                        , write = True
-                        , execute = False
-                        }
-
-                    else if letter == "1" then
-                        { read = False
-                        , write = False
-                        , execute = True
-                        }
-
-                    else
-                        { read = False
-                        , write = False
-                        , execute = False
-                        }
-                )
-            |> (\permissions ->
-                    case permissions of
-                        [ owner, group, others ] ->
-                            Just { owner = owner, group = group, others = others }
-
-                        _ ->
-                            Nothing
-               )
-
-
-usersPermissionsToOctal : UsersPermissions -> String
-usersPermissionsToOctal { owner, group, others } =
-    [ owner, group, others ]
-        |> List.map permissionsToOctal
-        |> String.join ""
 
 
 type alias Model =
@@ -202,31 +17,11 @@ type alias Model =
     }
 
 
-initialPermissions : UsersPermissions
-initialPermissions =
-    { owner =
-        { write = False
-        , read = False
-        , execute = False
-        }
-    , group =
-        { write = False
-        , read = False
-        , execute = False
-        }
-    , others =
-        { write = False
-        , read = False
-        , execute = False
-        }
-    }
-
-
 init : Model
 init =
-    { permissions = initialPermissions
-    , octal = usersPermissionsToOctal initialPermissions
-    , litteral = usersPermissionsToLitteral initialPermissions
+    { permissions = Permissions.initial
+    , octal = Permissions.Octal.fromUsersPermissions Permissions.initial
+    , litteral = Permissions.Litteral.fromUsersPermissions Permissions.initial
     }
 
 
@@ -247,208 +42,134 @@ type Message
 update : Message -> Model -> Model
 update message model =
     case message of
-        UpdateOwnerWritePermission newOwnerWritePermission ->
-            let
-                oldPermissions =
-                    model.permissions
-
-                oldOwner =
-                    oldPermissions.owner
-
-                newOwner =
-                    { oldOwner | write = newOwnerWritePermission }
-
-                newPermissions =
-                    { oldPermissions | owner = newOwner }
-            in
-            { model
-                | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
-            }
-
         UpdateOwnerReadPermission newOwnerReadPermission ->
             let
-                oldPermissions =
-                    model.permissions
-
-                oldOwner =
-                    oldPermissions.owner
-
-                newOwner =
-                    { oldOwner | read = newOwnerReadPermission }
-
+                newPermissions : UsersPermissions
                 newPermissions =
-                    { oldPermissions | owner = newOwner }
+                    Permissions.updateOwnerReadPermission newOwnerReadPermission model.permissions
             in
             { model
                 | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
+            }
+
+        UpdateOwnerWritePermission newOwnerWritePermission ->
+            let
+                newPermissions : UsersPermissions
+                newPermissions =
+                    Permissions.updateOwnerWritePermission newOwnerWritePermission model.permissions
+            in
+            { model
+                | permissions = newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
             }
 
         UpdateOwnerExecutePermission newOwnerExecutePermission ->
             let
-                oldPermissions =
-                    model.permissions
-
-                oldOwner =
-                    oldPermissions.owner
-
-                newOwner =
-                    { oldOwner | execute = newOwnerExecutePermission }
-
+                newPermissions : UsersPermissions
                 newPermissions =
-                    { oldPermissions | owner = newOwner }
+                    Permissions.updateOwnerExecutePermission newOwnerExecutePermission model.permissions
             in
             { model
                 | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
-            }
-
-        UpdateGroupWritePermission newGroupWritePermission ->
-            let
-                oldPermissions =
-                    model.permissions
-
-                oldGroup =
-                    oldPermissions.group
-
-                newGroup =
-                    { oldGroup | write = newGroupWritePermission }
-
-                newPermissions =
-                    { oldPermissions | group = newGroup }
-            in
-            { model
-                | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
             }
 
         UpdateGroupReadPermission newGroupReadPermission ->
             let
-                oldPermissions =
-                    model.permissions
-
-                oldGroup =
-                    oldPermissions.group
-
-                newGroup =
-                    { oldGroup | read = newGroupReadPermission }
-
+                newPermissions : UsersPermissions
                 newPermissions =
-                    { oldPermissions | group = newGroup }
+                    Permissions.updateGroupReadPermission newGroupReadPermission model.permissions
             in
             { model
                 | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
+            }
+
+        UpdateGroupWritePermission newGroupWritePermission ->
+            let
+                newPermissions : UsersPermissions
+                newPermissions =
+                    Permissions.updateGroupWritePermission newGroupWritePermission model.permissions
+            in
+            { model
+                | permissions = newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
             }
 
         UpdateGroupExecutePermission newGroupExecutePermission ->
             let
-                oldPermissions =
-                    model.permissions
-
-                oldGroup =
-                    oldPermissions.group
-
-                newGroup =
-                    { oldGroup | execute = newGroupExecutePermission }
-
+                newPermissions : UsersPermissions
                 newPermissions =
-                    { oldPermissions | group = newGroup }
+                    Permissions.updateGroupExecutePermission newGroupExecutePermission model.permissions
             in
             { model
                 | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
-            }
-
-        UpdateOthersWritePermission newOthersWritePermission ->
-            let
-                oldPermissions =
-                    model.permissions
-
-                oldOthers =
-                    oldPermissions.others
-
-                newOthers =
-                    { oldOthers | write = newOthersWritePermission }
-
-                newPermissions =
-                    { oldPermissions | others = newOthers }
-            in
-            { model
-                | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
             }
 
         UpdateOthersReadPermission newOthersReadPermission ->
             let
-                oldPermissions =
-                    model.permissions
-
-                oldOthers =
-                    oldPermissions.others
-
-                newOthers =
-                    { oldOthers | read = newOthersReadPermission }
-
+                newPermissions : UsersPermissions
                 newPermissions =
-                    { oldPermissions | others = newOthers }
+                    Permissions.updateOthersReadPermission newOthersReadPermission model.permissions
             in
             { model
                 | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
+            }
+
+        UpdateOthersWritePermission newOthersWritePermission ->
+            let
+                newPermissions : UsersPermissions
+                newPermissions =
+                    Permissions.updateOthersWritePermission newOthersWritePermission model.permissions
+            in
+            { model
+                | permissions = newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
             }
 
         UpdateOthersExecutePermission newOthersExecutePermission ->
             let
-                oldPermissions =
-                    model.permissions
-
-                oldOthers =
-                    oldPermissions.others
-
-                newOthers =
-                    { oldOthers | execute = newOthersExecutePermission }
-
+                newPermissions : UsersPermissions
                 newPermissions =
-                    { oldPermissions | others = newOthers }
+                    Permissions.updateOthersExecutePermission newOthersExecutePermission model.permissions
             in
             { model
                 | permissions = newPermissions
-                , octal = usersPermissionsToOctal newPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
             }
 
         UpdateOctalPermissions newOctalPermissions ->
             let
+                newPermissions : UsersPermissions
                 newPermissions =
-                    newOctalPermissions
-                        |> octalToPermissions
-                        |> Maybe.withDefault initialPermissions
+                    Permissions.Octal.toUsersPermissions newOctalPermissions
             in
             { model
                 | octal = newOctalPermissions
-                , litteral = usersPermissionsToLitteral newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
                 , permissions = newPermissions
             }
 
         UpdateLitteralPermissions newLitteralPermissions ->
             let
+                newPermissions : UsersPermissions
                 newPermissions =
-                    newLitteralPermissions
-                        |> litteralToUsersPermissions
-                        |> Maybe.withDefault initialPermissions
+                    Permissions.Litteral.toUsersPermissions newLitteralPermissions
             in
             { model
-                | octal = usersPermissionsToOctal newPermissions
+                | octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = newLitteralPermissions
                 , permissions = newPermissions
             }
@@ -476,7 +197,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "owner-permission-read"
-                , Html.Attributes.checked model.permissions.owner.read
+                , Html.Attributes.checked (Permissions.canOwnerRead model.permissions)
                 , Html.Events.onCheck UpdateOwnerReadPermission
                 ]
                 []
@@ -486,7 +207,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "owner-permission-write"
-                , Html.Attributes.checked model.permissions.owner.write
+                , Html.Attributes.checked (Permissions.canOwnerWrite model.permissions)
                 , Html.Events.onCheck UpdateOwnerWritePermission
                 ]
                 []
@@ -496,7 +217,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "owner-permission-execute"
-                , Html.Attributes.checked model.permissions.owner.execute
+                , Html.Attributes.checked (Permissions.canOwnerExecute model.permissions)
                 , Html.Events.onCheck UpdateOwnerExecutePermission
                 ]
                 []
@@ -512,7 +233,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "group-permission-read"
-                , Html.Attributes.checked model.permissions.group.read
+                , Html.Attributes.checked (Permissions.canGroupRead model.permissions)
                 , Html.Events.onCheck UpdateGroupReadPermission
                 ]
                 []
@@ -522,7 +243,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "group-permission-write"
-                , Html.Attributes.checked model.permissions.group.write
+                , Html.Attributes.checked (Permissions.canGroupWrite model.permissions)
                 , Html.Events.onCheck UpdateGroupWritePermission
                 ]
                 []
@@ -532,7 +253,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "group-permission-execute"
-                , Html.Attributes.checked model.permissions.group.execute
+                , Html.Attributes.checked (Permissions.canGroupExecute model.permissions)
                 , Html.Events.onCheck UpdateGroupExecutePermission
                 ]
                 []
@@ -548,7 +269,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "others-permission-read"
-                , Html.Attributes.checked model.permissions.others.read
+                , Html.Attributes.checked (Permissions.canOthersRead model.permissions)
                 , Html.Events.onCheck UpdateOthersReadPermission
                 ]
                 []
@@ -558,7 +279,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "others-permission-write"
-                , Html.Attributes.checked model.permissions.others.write
+                , Html.Attributes.checked (Permissions.canOthersWrite model.permissions)
                 , Html.Events.onCheck UpdateOthersWritePermission
                 ]
                 []
@@ -568,7 +289,7 @@ view model =
             , Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.id "others-permission-execute"
-                , Html.Attributes.checked model.permissions.others.execute
+                , Html.Attributes.checked (Permissions.canOthersExecute model.permissions)
                 , Html.Events.onCheck UpdateOthersExecutePermission
                 ]
                 []
