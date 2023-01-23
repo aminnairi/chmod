@@ -164,13 +164,17 @@ update message model =
 
         UpdateLitteralPermissions newLitteralPermissions ->
             let
+                newLitteralPermissionsToLowerCase : String
+                newLitteralPermissionsToLowerCase =
+                    String.toLower newLitteralPermissions
+
                 newPermissions : UsersPermissions
                 newPermissions =
-                    Permissions.Litteral.toUsersPermissions newLitteralPermissions
+                    Permissions.Litteral.toUsersPermissions newLitteralPermissionsToLowerCase
             in
             { model
                 | octal = Permissions.Octal.fromUsersPermissions newPermissions
-                , litteral = newLitteralPermissions
+                , litteral = newLitteralPermissionsToLowerCase
                 , permissions = newPermissions
             }
 
