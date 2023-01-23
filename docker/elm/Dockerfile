@@ -23,7 +23,8 @@ RUN pacman -Syy --noconfirm curl tar xz git \
   && gunzip elm.gz \
   && chmod +x elm \
   && mv elm /usr/local/bin \
-  && elm --version
+  && elm --version \
+  && npm install --global uglify-js@3.17.4
 
 USER elm
 
