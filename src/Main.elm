@@ -41,6 +41,9 @@ type Message
     | UpdateOthersExecutePermission Bool
     | UpdateOctalPermissions String
     | UpdateLitteralPermissions String
+    | ResetPermissions
+    | SetFilePermissions
+    | SetFolderPermissions
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -204,6 +207,48 @@ update message model =
             , Cmd.none
             )
 
+        ResetPermissions ->
+            let
+                newPermissions : UsersPermissions
+                newPermissions =
+                    Permissions.initial
+            in
+            ( { model
+                | permissions = newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
+              }
+            , vibrateCommand ()
+            )
+
+        SetFilePermissions ->
+            let
+                newPermissions : UsersPermissions
+                newPermissions =
+                    Permissions.file
+            in
+            ( { model
+                | permissions = newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
+              }
+            , vibrateCommand ()
+            )
+
+        SetFolderPermissions ->
+            let
+                newPermissions : UsersPermissions
+                newPermissions =
+                    Permissions.folder
+            in
+            ( { model
+                | permissions = newPermissions
+                , octal = Permissions.Octal.fromUsersPermissions newPermissions
+                , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
+              }
+            , vibrateCommand ()
+            )
+
 
 view : Model -> Html Message
 view model =
@@ -216,6 +261,24 @@ view model =
         , Html.h2
             []
             [ Html.text "Permissions" ]
+        , Html.div
+            [ Html.Attributes.class "row" ]
+            [ Html.button
+                [ Html.Attributes.class "action"
+                , Html.Events.onClick ResetPermissions
+                ]
+                [ Html.text "Reset" ]
+            , Html.button
+                [ Html.Attributes.class "action"
+                , Html.Events.onClick SetFilePermissions
+                ]
+                [ Html.text "File" ]
+            , Html.button
+                [ Html.Attributes.class "action"
+                , Html.Events.onClick SetFolderPermissions
+                ]
+                [ Html.text "Folder" ]
+            ]
         , Html.h3
             []
             [ Html.text "Owner" ]
