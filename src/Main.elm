@@ -7,7 +7,6 @@ import Html.Events
 import Permissions exposing (UsersPermissions)
 import Permissions.Litteral
 import Permissions.Octal
-import String.Extra
 
 
 type alias Model =
