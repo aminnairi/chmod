@@ -36,8 +36,12 @@
         throw new Error("Elm element is not found in the current DOM!")
       }
 
-      window.Elm.Main.init({
+      const main = window.Elm.Main.init({
         node: elmElement
+      })
+
+      main.ports.vibrateCommand.subscribe(() => {
+        window.navigator.vibrate(50)
       })
     </script>
   </body>
