@@ -43,6 +43,23 @@
       main.ports.vibrateCommand.subscribe(() => {
         window.navigator.vibrate(50)
       })
+
+      main.ports.copyToClipboardCommand.subscribe(content => {
+        window.navigator.permissions.query({
+          name: "clipboard-write"
+        }).then(({state}) => {
+          if (state !== "granted") {
+            return Promise.reject(new Error(""))
+          }
+
+          window.navigator.clipboard.writeText(content)
+        }).then(() => {
+          alert("Copied to clipboard!")
+        }).catch((error) => {
+          console.error(error)
+          alert("Failed to copy to clipboard...")
+        })
+      })
     </script>
   </body>
 </html>
