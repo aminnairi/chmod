@@ -1,4 +1,4 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
@@ -9,6 +9,9 @@ import Permissions.Litteral
 import Permissions.Octal
 
 
+port vibrateCommand : () -> Cmd message
+
+
 type alias Model =
     { permissions : UsersPermissions
     , octal : String
@@ -16,12 +19,14 @@ type alias Model =
     }
 
 
-init : Model
-init =
-    { permissions = Permissions.initial
-    , octal = Permissions.Octal.fromUsersPermissions Permissions.initial
-    , litteral = Permissions.Litteral.fromUsersPermissions Permissions.initial
-    }
+init : Flags -> ( Model, Cmd Message )
+init flags =
+    ( { permissions = Permissions.initial
+      , octal = Permissions.Octal.fromUsersPermissions Permissions.initial
+      , litteral = Permissions.Litteral.fromUsersPermissions Permissions.initial
+      }
+    , Cmd.none
+    )
 
 
 type Message
@@ -38,7 +43,7 @@ type Message
     | UpdateLitteralPermissions String
 
 
-update : Message -> Model -> Model
+update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
         UpdateOwnerReadPermission newOwnerReadPermission ->
@@ -47,11 +52,13 @@ update message model =
                 newPermissions =
                     Permissions.updateOwnerReadPermission newOwnerReadPermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateOwnerWritePermission newOwnerWritePermission ->
             let
@@ -59,11 +66,13 @@ update message model =
                 newPermissions =
                     Permissions.updateOwnerWritePermission newOwnerWritePermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateOwnerExecutePermission newOwnerExecutePermission ->
             let
@@ -71,11 +80,13 @@ update message model =
                 newPermissions =
                     Permissions.updateOwnerExecutePermission newOwnerExecutePermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateGroupReadPermission newGroupReadPermission ->
             let
@@ -83,11 +94,13 @@ update message model =
                 newPermissions =
                     Permissions.updateGroupReadPermission newGroupReadPermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateGroupWritePermission newGroupWritePermission ->
             let
@@ -95,11 +108,13 @@ update message model =
                 newPermissions =
                     Permissions.updateGroupWritePermission newGroupWritePermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateGroupExecutePermission newGroupExecutePermission ->
             let
@@ -107,11 +122,13 @@ update message model =
                 newPermissions =
                     Permissions.updateGroupExecutePermission newGroupExecutePermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateOthersReadPermission newOthersReadPermission ->
             let
@@ -119,11 +136,13 @@ update message model =
                 newPermissions =
                     Permissions.updateOthersReadPermission newOthersReadPermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateOthersWritePermission newOthersWritePermission ->
             let
@@ -131,11 +150,13 @@ update message model =
                 newPermissions =
                     Permissions.updateOthersWritePermission newOthersWritePermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateOthersExecutePermission newOthersExecutePermission ->
             let
@@ -143,11 +164,13 @@ update message model =
                 newPermissions =
                     Permissions.updateOthersExecutePermission newOthersExecutePermission model.permissions
             in
-            { model
+            ( { model
                 | permissions = newPermissions
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
-            }
+              }
+            , vibrateCommand ()
+            )
 
         UpdateOctalPermissions newOctalPermissions ->
             let
@@ -155,11 +178,13 @@ update message model =
                 newPermissions =
                     Permissions.Octal.toUsersPermissions newOctalPermissions
             in
-            { model
+            ( { model
                 | octal = newOctalPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
                 , permissions = newPermissions
-            }
+              }
+            , Cmd.none
+            )
 
         UpdateLitteralPermissions newLitteralPermissions ->
             let
@@ -171,11 +196,13 @@ update message model =
                 newPermissions =
                     Permissions.Litteral.toUsersPermissions newLitteralPermissionsToLowerCase
             in
-            { model
+            ( { model
                 | octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = newLitteralPermissionsToLowerCase
                 , permissions = newPermissions
-            }
+              }
+            , Cmd.none
+            )
 
 
 view : Model -> Html Message
@@ -332,14 +359,20 @@ view model =
         ]
 
 
+subscriptions : Model -> Sub Message
+subscriptions =
+    always Sub.none
+
+
 type alias Flags =
     ()
 
 
 main : Program Flags Model Message
 main =
-    Browser.sandbox
+    Browser.element
         { init = init
         , view = view
         , update = update
+        , subscriptions = subscriptions
         }
