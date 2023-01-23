@@ -12,3 +12,7 @@ services:
         NODEJS_DISTRIBUTION: linux-x64
     volumes:
       - .:/home/elm
+
+  uglifyjs:
+    extends: elm
+    entrypoint: uglifyjs
