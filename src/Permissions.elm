@@ -1,4 +1,4 @@
-module Permissions exposing (GroupExecutePermission(..), GroupPermissions(..), GroupReadPermission(..), GroupWritePermission(..), OthersExecutePermission(..), OthersPermissions(..), OthersReadPermission(..), OthersWritePermission(..), OwnerExecutePermission(..), OwnerPermissions(..), OwnerReadPermission(..), OwnerWritePermission(..), UsersPermissions(..), canGroupExecute, canGroupRead, canGroupWrite, canOthersExecute, canOthersRead, canOthersWrite, canOwnerExecute, canOwnerRead, canOwnerWrite, initial, updateGroupExecutePermission, updateGroupReadPermission, updateGroupWritePermission, updateOthersExecutePermission, updateOthersReadPermission, updateOthersWritePermission, updateOwnerExecutePermission, updateOwnerReadPermission, updateOwnerWritePermission)
+module Permissions exposing (GroupExecutePermission(..), GroupPermissions(..), GroupReadPermission(..), GroupWritePermission(..), OthersExecutePermission(..), OthersPermissions(..), OthersReadPermission(..), OthersWritePermission(..), OwnerExecutePermission(..), OwnerPermissions(..), OwnerReadPermission(..), OwnerWritePermission(..), UsersPermissions(..), canGroupExecute, canGroupRead, canGroupWrite, canOthersExecute, canOthersRead, canOthersWrite, canOwnerExecute, canOwnerRead, canOwnerWrite, file, folder, initial, updateGroupExecutePermission, updateGroupReadPermission, updateGroupWritePermission, updateOthersExecutePermission, updateOthersReadPermission, updateOthersWritePermission, updateOwnerExecutePermission, updateOwnerReadPermission, updateOwnerWritePermission)
 
 
 type OwnerReadPermission
@@ -68,6 +68,22 @@ initial =
         (OwnerPermissions OwnerReadPermissionDisabled OwnerWritePermissionDisabled OwnerExecutePermissionDisabled)
         (GroupPermissions GroupReadPermissionDisabled GroupWritePermissionDisabled GroupExecutePermissionDisabled)
         (OthersPermissions OthersReadPermissionDisabled OthersWritePermissionDisabled OthersExecutePermissionDisabled)
+
+
+file : UsersPermissions
+file =
+    UsersPermissions
+        (OwnerPermissions OwnerReadPermissionEnabled OwnerWritePermissionEnabled OwnerExecutePermissionDisabled)
+        (GroupPermissions GroupReadPermissionEnabled GroupWritePermissionDisabled GroupExecutePermissionDisabled)
+        (OthersPermissions OthersReadPermissionEnabled OthersWritePermissionDisabled OthersExecutePermissionDisabled)
+
+
+folder : UsersPermissions
+folder =
+    UsersPermissions
+        (OwnerPermissions OwnerReadPermissionEnabled OwnerWritePermissionEnabled OwnerExecutePermissionEnabled)
+        (GroupPermissions GroupReadPermissionEnabled GroupWritePermissionDisabled GroupExecutePermissionEnabled)
+        (OthersPermissions OthersReadPermissionEnabled OthersWritePermissionDisabled OthersExecutePermissionDisabled)
 
 
 updateOwnerReadPermission : Bool -> UsersPermissions -> UsersPermissions
