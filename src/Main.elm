@@ -12,6 +12,9 @@ import Permissions.Octal
 port vibrateCommand : () -> Cmd message
 
 
+port copyToClipboardCommand : String -> Cmd message
+
+
 type alias Model =
     { permissions : UsersPermissions
     , octal : String
@@ -44,6 +47,7 @@ type Message
     | ResetPermissions
     | SetFilePermissions
     | SetFolderPermissions
+    | CopyToClipboard
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -249,6 +253,19 @@ update message model =
             , vibrateCommand ()
             )
 
+        CopyToClipboard ->
+            let
+                chmodCommandAsText : String
+                chmodCommandAsText =
+                    "chmod " ++ model.octal
+            in
+            ( model
+            , Cmd.batch
+                [ copyToClipboardCommand chmodCommandAsText
+                , vibrateCommand ()
+                ]
+            )
+
 
 view : Model -> Html Message
 view model =
@@ -419,6 +436,11 @@ view model =
                 ]
                 []
             ]
+        , Html.button
+            [ Html.Attributes.class "action"
+            , Html.Events.onClick CopyToClipboard
+            ]
+            [ Html.text "copy" ]
         ]
 
 
