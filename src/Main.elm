@@ -3,6 +3,7 @@ port module Main exposing (main)
 import Browser
 import Html exposing (Html)
 import Html.Attributes
+import Html.Builder
 import Html.Events
 import Permissions exposing (UsersPermissions)
 import Permissions.Litteral
@@ -269,179 +270,269 @@ update message model =
 
 view : Model -> Html Message
 view model =
-    Html.div
-        [ Html.Attributes.class "container" ]
-        [ Html.h1
-            []
-            [ Html.text "Chmod" ]
-        , Html.hr [ Html.Attributes.class "horizontal-line" ] []
-        , Html.h2
-            []
-            [ Html.text "Permissions" ]
-        , Html.div
-            [ Html.Attributes.class "row" ]
-            [ Html.button
-                [ Html.Attributes.class "action"
-                , Html.Events.onClick ResetPermissions
-                ]
-                [ Html.text "Reset" ]
-            , Html.button
-                [ Html.Attributes.class "action"
-                , Html.Events.onClick SetFilePermissions
-                ]
-                [ Html.text "File" ]
-            , Html.button
-                [ Html.Attributes.class "action"
-                , Html.Events.onClick SetFolderPermissions
-                ]
-                [ Html.text "Folder" ]
-            ]
-        , Html.h3
-            []
-            [ Html.text "Owner" ]
-        , Html.div
-            [ Html.Attributes.class "row" ]
-            [ Html.label
-                [ Html.Attributes.for "owner-permission-read" ]
-                [ Html.text "Read" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "owner-permission-read"
-                , Html.Attributes.checked (Permissions.canOwnerRead model.permissions)
-                , Html.Events.onCheck UpdateOwnerReadPermission
-                ]
-                []
-            , Html.label
-                [ Html.Attributes.for "owner-permission-write" ]
-                [ Html.text "Write" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "owner-permission-write"
-                , Html.Attributes.checked (Permissions.canOwnerWrite model.permissions)
-                , Html.Events.onCheck UpdateOwnerWritePermission
-                ]
-                []
-            , Html.label
-                [ Html.Attributes.for "owner-permission-execute" ]
-                [ Html.text "Execute" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "owner-permission-execute"
-                , Html.Attributes.checked (Permissions.canOwnerExecute model.permissions)
-                , Html.Events.onCheck UpdateOwnerExecutePermission
-                ]
-                []
-            ]
-        , Html.h3
-            []
-            [ Html.text "Group" ]
-        , Html.div
-            [ Html.Attributes.class "row" ]
-            [ Html.label
-                [ Html.Attributes.for "group-permission-read" ]
-                [ Html.text "Read" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "group-permission-read"
-                , Html.Attributes.checked (Permissions.canGroupRead model.permissions)
-                , Html.Events.onCheck UpdateGroupReadPermission
-                ]
-                []
-            , Html.label
-                [ Html.Attributes.for "group-permission-write" ]
-                [ Html.text "Write" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "group-permission-write"
-                , Html.Attributes.checked (Permissions.canGroupWrite model.permissions)
-                , Html.Events.onCheck UpdateGroupWritePermission
-                ]
-                []
-            , Html.label
-                [ Html.Attributes.for "group-permission-execute" ]
-                [ Html.text "Execute" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "group-permission-execute"
-                , Html.Attributes.checked (Permissions.canGroupExecute model.permissions)
-                , Html.Events.onCheck UpdateGroupExecutePermission
-                ]
-                []
-            ]
-        , Html.h3
-            []
-            [ Html.text "Others" ]
-        , Html.div
-            [ Html.Attributes.class "row" ]
-            [ Html.label
-                [ Html.Attributes.for "others-permission-read" ]
-                [ Html.text "Read" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "others-permission-read"
-                , Html.Attributes.checked (Permissions.canOthersRead model.permissions)
-                , Html.Events.onCheck UpdateOthersReadPermission
-                ]
-                []
-            , Html.label
-                [ Html.Attributes.for "others-permission-write" ]
-                [ Html.text "Write" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "others-permission-write"
-                , Html.Attributes.checked (Permissions.canOthersWrite model.permissions)
-                , Html.Events.onCheck UpdateOthersWritePermission
-                ]
-                []
-            , Html.label
-                [ Html.Attributes.for "others-permission-execute" ]
-                [ Html.text "Execute" ]
-            , Html.input
-                [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.id "others-permission-execute"
-                , Html.Attributes.checked (Permissions.canOthersExecute model.permissions)
-                , Html.Events.onCheck UpdateOthersExecutePermission
-                ]
-                []
-            ]
-        , Html.hr [ Html.Attributes.class "horizontal-line" ] []
-        , Html.h2
-            []
-            [ Html.text "Litteral" ]
-        , Html.div
-            [ Html.Attributes.class "input-with-label" ]
-            [ Html.label
-                [ Html.Attributes.for "litteral-permissions" ]
-                [ Html.text "Value" ]
-            , Html.input
-                [ Html.Attributes.value model.litteral
-                , Html.Events.onInput UpdateLitteralPermissions
-                , Html.Attributes.id "litteral-permissions"
-                ]
-                []
-            ]
-        , Html.hr [ Html.Attributes.class "horizontal-line" ] []
-        , Html.h2
-            []
-            [ Html.text "Octal" ]
-        , Html.div
-            [ Html.Attributes.class "input-with-label" ]
-            [ Html.label
-                [ Html.Attributes.for "octal-permissions" ]
-                [ Html.text "Value" ]
-            , Html.input
-                [ Html.Attributes.value model.octal
-                , Html.Events.onInput UpdateOctalPermissions
-                , Html.Attributes.id "octal-permissions"
-                ]
-                []
-            ]
-        , Html.button
-            [ Html.Attributes.class "action"
-            , Html.Events.onClick CopyToClipboard
-            ]
-            [ Html.text "copy" ]
-        ]
+    Html.Builder.new "div"
+        |> Html.Builder.withAttribute (Html.Attributes.class "container")
+        |> Html.Builder.withChild
+            (Html.Builder.new "h1"
+                |> Html.Builder.withText "Chmod"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "hr"
+                |> Html.Builder.withAttribute (Html.Attributes.class "horizontal-line")
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "h2"
+                |> Html.Builder.withText "Permissions"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "div"
+                |> Html.Builder.withAttribute (Html.Attributes.class "row")
+                |> Html.Builder.withChild
+                    (Html.Builder.new "button"
+                        |> Html.Builder.withAttribute (Html.Attributes.class "action")
+                        |> Html.Builder.withAttribute (Html.Events.onClick ResetPermissions)
+                        |> Html.Builder.withText "Reset"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "button"
+                        |> Html.Builder.withAttribute (Html.Attributes.class "action")
+                        |> Html.Builder.withAttribute (Html.Events.onClick SetFilePermissions)
+                        |> Html.Builder.withText "File"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "button"
+                        |> Html.Builder.withAttribute (Html.Attributes.class "action")
+                        |> Html.Builder.withAttribute (Html.Events.onClick SetFolderPermissions)
+                        |> Html.Builder.withText "Folder"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "h3"
+                |> Html.Builder.withText "Owner"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "div"
+                |> Html.Builder.withAttribute (Html.Attributes.class "row")
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "owner-permission-read")
+                        |> Html.Builder.withText "Read"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "owner-permission-read")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canOwnerRead model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateOwnerReadPermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "owner-permission-write")
+                        |> Html.Builder.withText "Write"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "owner-permission-write")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canOwnerWrite model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateOwnerWritePermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "owner-permission-execute")
+                        |> Html.Builder.withText "Execute"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "owner-permission-execute")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canOwnerExecute model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateOwnerExecutePermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "h3"
+                |> Html.Builder.withText "Group"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "div"
+                |> Html.Builder.withAttribute (Html.Attributes.class "row")
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "group-permission-read")
+                        |> Html.Builder.withText "Read"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "group-permission-read")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canGroupRead model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateGroupReadPermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "group-permission-write")
+                        |> Html.Builder.withText "Write"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "group-permission-write")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canGroupWrite model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateGroupWritePermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "group-permission-execute")
+                        |> Html.Builder.withText "Execute"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "group-permission-execute")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canGroupExecute model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateGroupExecutePermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "h3"
+                |> Html.Builder.withText "Others"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "div"
+                |> Html.Builder.withAttribute (Html.Attributes.class "row")
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "others-permission-read")
+                        |> Html.Builder.withText "Read"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "others-permission-read")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canOthersRead model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateOthersReadPermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "others-permission-write")
+                        |> Html.Builder.withText "Write"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "others-permission-write")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canOthersWrite model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateOthersWritePermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "others-permission-execute")
+                        |> Html.Builder.withText "Execute"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.type_ "checkbox")
+                        |> Html.Builder.withAttribute (Html.Attributes.id "others-permission-execute")
+                        |> Html.Builder.withAttribute (Html.Attributes.checked (Permissions.canOthersExecute model.permissions))
+                        |> Html.Builder.withAttribute (Html.Events.onCheck UpdateOthersExecutePermission)
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "hr"
+                |> Html.Builder.withAttribute (Html.Attributes.class "horizontal-line")
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "h2"
+                |> Html.Builder.withText "Litteral"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "div"
+                |> Html.Builder.withAttribute (Html.Attributes.class "input-with-label")
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "litteral-permissions")
+                        |> Html.Builder.withText "Value"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.value model.litteral)
+                        |> Html.Builder.withAttribute (Html.Events.onInput UpdateLitteralPermissions)
+                        |> Html.Builder.withAttribute (Html.Attributes.id "litteral-permissions")
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "hr"
+                |> Html.Builder.withAttribute (Html.Attributes.class "horizontal-line")
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "h2"
+                |> Html.Builder.withText "Octal"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "div"
+                |> Html.Builder.withAttribute (Html.Attributes.class "input-with-label")
+                |> Html.Builder.withChild
+                    (Html.Builder.new "label"
+                        |> Html.Builder.withAttribute (Html.Attributes.for "octal-permissions")
+                        |> Html.Builder.withText "Value"
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.withChild
+                    (Html.Builder.new "input"
+                        |> Html.Builder.withAttribute (Html.Attributes.value model.octal)
+                        |> Html.Builder.withAttribute (Html.Events.onInput UpdateOctalPermissions)
+                        |> Html.Builder.withAttribute (Html.Attributes.id "octal-permissions")
+                        |> Html.Builder.build
+                    )
+                |> Html.Builder.build
+            )
+        |> Html.Builder.withChild
+            (Html.Builder.new "button"
+                |> Html.Builder.withAttribute (Html.Attributes.class "action")
+                |> Html.Builder.withAttribute (Html.Events.onClick CopyToClipboard)
+                |> Html.Builder.withText "copy"
+                |> Html.Builder.build
+            )
+        |> Html.Builder.build
 
 
 subscriptions : Model -> Sub Message
