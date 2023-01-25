@@ -24,6 +24,10 @@ h6 {
   font-family: Lora, serif;
 }
 
+label {
+  user-select: none;
+}
+
 .action {
   padding: 5px 10px;
   background-color: black;
