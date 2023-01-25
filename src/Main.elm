@@ -6,6 +6,9 @@ import Html.Builder
 import Permissions exposing (UsersPermissions)
 import Permissions.Litteral
 import Permissions.Octal
+import Random
+import Random.Char
+import Random.String
 
 
 port vibrateCommand : () -> Cmd message
@@ -14,11 +17,50 @@ port vibrateCommand : () -> Cmd message
 port copyToClipboardCommand : String -> Cmd message
 
 
+type alias OwnerIdentifiers =
+    { read : String
+    , write : String
+    , execute : String
+    }
+
+
+type alias GroupIdentifiers =
+    { read : String
+    , write : String
+    , execute : String
+    }
+
+
+type alias OthersIdentifiers =
+    { read : String
+    , write : String
+    , execute : String
+    }
+
+
+type alias Identifiers =
+    { owner : OwnerIdentifiers
+    , group : GroupIdentifiers
+    , others : OthersIdentifiers
+    }
+
+
 type alias Model =
     { permissions : UsersPermissions
     , octal : String
     , litteral : String
+    , identifiers : Identifiers
     }
+
+
+randomIdentifierGenerator : Random.Generator String
+randomIdentifierGenerator =
+    Random.String.string 10 Random.Char.english
+
+
+randomIdentifiersGenerator : Random.Generator (List String)
+randomIdentifiersGenerator =
+    Random.list 9 randomIdentifierGenerator
 
 
 init : Flags -> ( Model, Cmd Message )
@@ -26,8 +68,25 @@ init flags =
     ( { permissions = Permissions.initial
       , octal = Permissions.Octal.fromUsersPermissions Permissions.initial
       , litteral = Permissions.Litteral.fromUsersPermissions Permissions.initial
+      , identifiers =
+            { owner =
+                { read = ""
+                , write = ""
+                , execute = ""
+                }
+            , group =
+                { read = ""
+                , write = ""
+                , execute = ""
+                }
+            , others =
+                { read = ""
+                , write = ""
+                , execute = ""
+                }
+            }
       }
-    , Cmd.none
+    , Random.generate GotRandomIdentifiers randomIdentifiersGenerator
     )
 
 
@@ -47,6 +106,7 @@ type Message
     | SetFilePermissions
     | SetFolderPermissions
     | CopyToClipboard
+    | GotRandomIdentifiers (List String)
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -265,6 +325,37 @@ update message model =
                 ]
             )
 
+        GotRandomIdentifiers identifiers ->
+            case identifiers of
+                [ ownerReadIdentifier, ownerWriteIdentifier, ownerExecuteIdentifier, groupReadIdentifier, groupWriteIdentifier, groupExecuteIdentifier, othersReadIdentifier, othersWriteIdentifier, othersExecuteIdentifier ] ->
+                    let
+                        newModel : Model
+                        newModel =
+                            { model
+                                | identifiers =
+                                    { owner =
+                                        { read = ownerReadIdentifier
+                                        , write = ownerWriteIdentifier
+                                        , execute = ownerExecuteIdentifier
+                                        }
+                                    , group =
+                                        { read = groupReadIdentifier
+                                        , write = groupWriteIdentifier
+                                        , execute = groupExecuteIdentifier
+                                        }
+                                    , others =
+                                        { read = othersReadIdentifier
+                                        , write = othersWriteIdentifier
+                                        , execute = othersExecuteIdentifier
+                                        }
+                                    }
+                            }
+                    in
+                    ( newModel, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 view : Model -> Html Message
 view model =
@@ -321,42 +412,42 @@ view model =
                 |> Html.Builder.withClass "row"
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "owner-permission-read"
+                        |> Html.Builder.withFor model.identifiers.owner.read
                         |> Html.Builder.withText "Read"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "owner-permission-read"
+                        |> Html.Builder.withId model.identifiers.owner.read
                         |> Html.Builder.withChecked (Permissions.canOwnerRead model.permissions)
                         |> Html.Builder.withOnCheck UpdateOwnerReadPermission
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "owner-permission-write"
+                        |> Html.Builder.withFor model.identifiers.owner.write
                         |> Html.Builder.withText "Write"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "owner-permission-write"
+                        |> Html.Builder.withId model.identifiers.owner.write
                         |> Html.Builder.withChecked (Permissions.canOwnerWrite model.permissions)
                         |> Html.Builder.withOnCheck UpdateOwnerWritePermission
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "owner-permission-execute"
+                        |> Html.Builder.withFor model.identifiers.owner.execute
                         |> Html.Builder.withText "Execute"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "owner-permission-execute"
+                        |> Html.Builder.withId model.identifiers.owner.execute
                         |> Html.Builder.withChecked (Permissions.canOwnerExecute model.permissions)
                         |> Html.Builder.withOnCheck UpdateOwnerExecutePermission
                         |> Html.Builder.build
@@ -373,42 +464,42 @@ view model =
                 |> Html.Builder.withClass "row"
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "group-permission-read"
+                        |> Html.Builder.withFor model.identifiers.group.read
                         |> Html.Builder.withText "Read"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "group-permission-read"
+                        |> Html.Builder.withId model.identifiers.group.read
                         |> Html.Builder.withChecked (Permissions.canGroupRead model.permissions)
                         |> Html.Builder.withOnCheck UpdateGroupReadPermission
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "group-permission-write"
+                        |> Html.Builder.withFor model.identifiers.group.write
                         |> Html.Builder.withText "Write"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "group-permission-write"
+                        |> Html.Builder.withId model.identifiers.group.write
                         |> Html.Builder.withChecked (Permissions.canGroupWrite model.permissions)
                         |> Html.Builder.withOnCheck UpdateGroupWritePermission
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "group-permission-execute"
+                        |> Html.Builder.withFor model.identifiers.group.execute
                         |> Html.Builder.withText "Execute"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "group-permission-execute"
+                        |> Html.Builder.withId model.identifiers.group.execute
                         |> Html.Builder.withChecked (Permissions.canGroupExecute model.permissions)
                         |> Html.Builder.withOnCheck UpdateGroupExecutePermission
                         |> Html.Builder.build
@@ -425,42 +516,42 @@ view model =
                 |> Html.Builder.withClass "row"
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "others-permission-read"
+                        |> Html.Builder.withFor model.identifiers.others.read
                         |> Html.Builder.withText "Read"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "others-permission-read"
+                        |> Html.Builder.withId model.identifiers.others.read
                         |> Html.Builder.withChecked (Permissions.canOthersRead model.permissions)
                         |> Html.Builder.withOnCheck UpdateOthersReadPermission
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "others-permission-write"
+                        |> Html.Builder.withFor model.identifiers.others.write
                         |> Html.Builder.withText "Write"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "others-permission-write"
+                        |> Html.Builder.withId model.identifiers.others.write
                         |> Html.Builder.withChecked (Permissions.canOthersWrite model.permissions)
                         |> Html.Builder.withOnCheck UpdateOthersWritePermission
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.label
-                        |> Html.Builder.withFor "others-permission-execute"
+                        |> Html.Builder.withFor model.identifiers.others.execute
                         |> Html.Builder.withText "Execute"
                         |> Html.Builder.build
                     )
                 |> Html.Builder.withChild
                     (Html.Builder.input
                         |> Html.Builder.withType "checkbox"
-                        |> Html.Builder.withId "others-permission-execute"
+                        |> Html.Builder.withId model.identifiers.others.execute
                         |> Html.Builder.withChecked (Permissions.canOthersExecute model.permissions)
                         |> Html.Builder.withOnCheck UpdateOthersExecutePermission
                         |> Html.Builder.build
