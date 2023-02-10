@@ -2,6 +2,8 @@
 
 Calculate `chmod` permissions using a grahpical Web interface
 
+[![pages-build-deployment](https://github.com/aminnairi/chmod/actions/workflows/pages/pages-build-deployment/badge.svg?branch=development)](https://github.com/aminnairi/chmod/actions/workflows/pages/pages-build-deployment)
+
 ## Usage
 
 See https://aminnairi.github.io/chmod
