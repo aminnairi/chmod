@@ -6,13 +6,18 @@ services:
       context: docker/elm
       dockerfile: Dockerfile
       args:
-        ELM_VERSION: 0.19.1
-        ELM_DISTRIBUTION: linux-64-bit
-        NODEJS_VERSION: 18.13.0
-        NODEJS_DISTRIBUTION: linux-x64
+        ELM_VERSION: $ELM_VERSION
+        ELM_DISTRIBUTION: $ELM_DISTRIBUTION
+        NODEJS_VERSION: $NODEJS_VERSION
+        NODEJS_DISTRIBUTION: $NODEJS_DISTRIBUTION
+        SERVER_PORT: $SERVER_PORT
+        SERVER_HOST: $SERVER_HOST
+    ports:
+      - $SERVER_HOST:$SERVER_PORT:$SERVER_PORT
+    env_file: .env
     volumes:
       - .:/home/elm
 
-  uglifyjs:
+  npm:
     extends: elm
-    entrypoint: uglifyjs
+    entrypoint: npm
