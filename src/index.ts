@@ -23,11 +23,11 @@ const main = Elm.Main.init({
   node: elmElement
 })
 
-main.ports.vibrateCommand.subscribe(() => {
+main.ports.vibrate.subscribe(() => {
   window.navigator.vibrate(50)
 })
 
-main.ports.copyToClipboardCommand.subscribe(content => {
+main.ports.copy.subscribe(content => {
   window.navigator.permissions.query({
     // @ts-ignore
     name: "clipboard-write"
