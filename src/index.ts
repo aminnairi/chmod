@@ -23,8 +23,10 @@ const main = Elm.Main.init({
   node: elmElement
 })
 
-main.ports.vibrate.subscribe(() => {
-  window.navigator.vibrate(50)
+main.ports.vibrate.subscribe(pattern => {
+  if (Array.isArray(pattern) && pattern.every(interval => typeof interval === "number")) {
+    window.navigator.vibrate(pattern)
+  }
 })
 
 main.ports.copy.subscribe(content => {
