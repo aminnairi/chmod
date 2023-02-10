@@ -6,60 +6,17 @@
     <meta name="description" content="Calculate chmod values from octal, litteral or named permissions.">
     <meta name="theme-color" content="cornsilk">
     <title>Chmod Calculator</title>
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="./icon.png">
-    <link rel="apple-touch-icon" href="./icon.png">
-    <link rel="preload" href="./index.css" as="style">
+    <link rel="manifest" href="/chmod/manifest.json">
+    <link rel="icon" href="/chmod/icon.png">
+    <link rel="apple-touch-icon" href="/chmod/icon.png">
+    <link rel="preload" href="/chmod/index.css" as="style">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Lora:wght@400;500;600;700&family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="preload" as="style">
+    
+    <script type="module" crossorigin src="/chmod/assets/index.15172287.js"></script>
   </head>
   <body>
     <div id="elm"></div>
-    <script src="./index.js"></script>
-    <script>
-      const font = document.createElement("link")
-      const stylesheet = document.createElement("link")
-
-      font.setAttribute("rel", "stylesheet")
-      font.setAttribute("href", "https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Lora:wght@400;500;600;700&family=Roboto:wght@100;300;400;500;700;900&display=swap")
-
-      stylesheet.setAttribute("rel", "stylesheet")
-      stylesheet.setAttribute("href", "./index.css")
-
-      document.head.appendChild(font)
-      document.head.appendChild(stylesheet)
-
-      const elmElement = document.getElementById("elm")
-
-      if (!(elmElement instanceof HTMLDivElement)) {
-        throw new Error("Elm element is not found in the current DOM!")
-      }
-
-      const main = window.Elm.Main.init({
-        node: elmElement
-      })
-
-      main.ports.vibrateCommand.subscribe(() => {
-        window.navigator.vibrate(50)
-      })
-
-      main.ports.copyToClipboardCommand.subscribe(content => {
-        window.navigator.permissions.query({
-          name: "clipboard-write"
-        }).then(({state}) => {
-          if (state !== "granted") {
-            return Promise.reject(new Error(""))
-          }
-
-          window.navigator.clipboard.writeText(content)
-        }).then(() => {
-          alert("Copied to clipboard!")
-        }).catch((error) => {
-          console.error(error)
-          alert("Failed to copy to clipboard...")
-        })
-      })
-    </script>
   </body>
 </html>
