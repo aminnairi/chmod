@@ -1,15 +1,16 @@
-.PHONY: build serve
+.PHONY: install development production start
 
 build:
 	docker compose build
 
-serve: build
-	docker compose run --rm --publish 8000:8000 elm reactor --port 8000
+install: build
+	docker compose run --rm npm install
 
-optimize: build
-	docker compose run --rm elm make --optimize --output docs/index.js src/Main.elm \
-		&& docker compose run --rm uglifyjs docs/index.js --compress 'pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe' --output docs/index.js \
-		&& docker compose run --rm uglifyjs --mangle --output docs/index.js docs/index.js
+development: install
+	docker compose run --rm --service-ports npm run development
 
-unoptimize: build
-	docker compose run --rm elm make --debug --output docs/index.js src/Main.elm
+production: build
+	docker compose run --rm npm run production
+
+start: production
+	docker compose run --rm --service-ports npm start
