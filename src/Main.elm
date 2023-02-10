@@ -118,7 +118,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateOwnerWritePermission newOwnerWritePermission ->
@@ -132,7 +132,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateOwnerExecutePermission newOwnerExecutePermission ->
@@ -146,7 +146,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateGroupReadPermission newGroupReadPermission ->
@@ -160,7 +160,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateGroupWritePermission newGroupWritePermission ->
@@ -174,7 +174,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateGroupExecutePermission newGroupExecutePermission ->
@@ -188,7 +188,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateOthersReadPermission newOthersReadPermission ->
@@ -202,7 +202,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateOthersWritePermission newOthersWritePermission ->
@@ -216,7 +216,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateOthersExecutePermission newOthersExecutePermission ->
@@ -230,7 +230,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         UpdateOctalPermissions newOctalPermissions ->
@@ -276,7 +276,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         SetFilePermissions ->
@@ -290,7 +290,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         SetFolderPermissions ->
@@ -304,7 +304,7 @@ update message model =
                 , octal = Permissions.Octal.fromUsersPermissions newPermissions
                 , litteral = Permissions.Litteral.fromUsersPermissions newPermissions
               }
-            , Navigator.vibrate ()
+            , Navigator.vibrate [ 30 ]
             )
 
         CopyToClipboard ->
@@ -316,7 +316,7 @@ update message model =
             ( model
             , Cmd.batch
                 [ Navigator.copy chmodCommandAsText
-                , Navigator.vibrate ()
+                , Navigator.vibrate [ 30 ]
                 ]
             )
 
